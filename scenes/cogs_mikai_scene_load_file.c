@@ -136,7 +136,7 @@ void cogs_mikai_scene_load_file_on_enter(void* context) {
 
             if(success) {
                 app->mykey.is_loaded = true;
-                app->mykey.is_modified = false;  // Fresh load from file
+                app->mykey.is_modified = true;  // Fresh load from file
                 app->mykey.is_reset = mykey_is_reset(&app->mykey);
                 app->mykey.current_credit = mykey_get_current_credit(&app->mykey);
 
