@@ -209,6 +209,9 @@ bool mykey_add_cents(MyKeyData* key, uint16_t cents, uint8_t day, uint8_t month,
         precedent_credit = actual_credit;
 
         // Choose current recharge
+       if(cents / 500 > 0) {
+            cents -= 500;
+            actual_credit += 500;
         if(cents / 200 > 0) {
             cents -= 200;
             actual_credit += 200;
