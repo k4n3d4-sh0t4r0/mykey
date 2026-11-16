@@ -5,6 +5,7 @@
 
 enum {
     SaveFileSceneEventInput,
+    SaveFileSceneEventPopupDone,
 };
 
 static bool cogs_mikai_scene_save_file_validator(const char* text, FuriString* error, void* context) {
@@ -33,7 +34,7 @@ static void cogs_mikai_scene_save_file_text_input_callback(void* context) {
 
 static void cogs_mikai_scene_save_file_popup_callback(void* context) {
     COGSMyKaiApp* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, 0);
+    view_dispatcher_send_custom_event(app->view_dispatcher, SaveFileSceneEventPopupDone);
 }
 
 void cogs_mikai_scene_save_file_on_enter(void* context) {

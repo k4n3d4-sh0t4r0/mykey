@@ -70,7 +70,9 @@ typedef struct {
 
     MyKeyData mykey;
     char text_buffer[32];
-    uint32_t temp_credit_value; 
+    uint32_t temp_credit_value;
+    uint16_t add_credit_cents;   // amount pending during Add Credit date step
+    uint8_t add_credit_step;     // 0 = amount input, 1 = date input
 } COGSMyKaiApp;
 
 // Scene handler function declarations
@@ -130,6 +132,8 @@ uint16_t mykey_get_current_credit(MyKeyData* key);
 uint16_t mykey_get_credit_from_history(MyKeyData* key); 
 void mykey_encode_decode_block(uint32_t* block);
 bool mykey_add_cents(MyKeyData* key, uint16_t cents, uint8_t day, uint8_t month, uint8_t year);
+bool mykey_get_last_transaction_date(MyKeyData* key, uint8_t* day, uint8_t* month, uint8_t* year);
+bool mykey_get_newest_transaction_offset(MyKeyData* key, uint8_t* offset);
 bool mykey_set_cents(MyKeyData* key, uint16_t cents, uint8_t day, uint8_t month, uint8_t year);
 void mykey_reset(MyKeyData* key);
 uint32_t mykey_get_block(MyKeyData* key, uint8_t block_num);

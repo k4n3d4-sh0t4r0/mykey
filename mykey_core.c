@@ -179,6 +179,53 @@ uint16_t mykey_get_credit_from_history(MyKeyData* key) {
     return credit;
 }
 
+// Public: index (0..7) of the newest transaction slot, using the same pointer
+// decode as writing does. Returns false when there is no history.
+bool mykey_get_newest_transaction_offset(MyKeyData* key, uint8_t* offset) {
+    if(key->eeprom[0x3C] == 0xFFFFFFFF) {
+        return false; // no history yet
+    }
+    uint8_t cur = get_current_transaction_offset(key);
+    if(cur > 7 || key->eeprom[0x34 + cur] == 0xFFFFFFFF) {
+        return false;
+    }
+    if(offset) *offset = cur;
+    return true;
+}
+
+// Get the date of the most recent transaction in the history.
+// Returns false when the history is empty (no date to compare against).
+// day/month are calendar values; year is stored as (full year - 2000), i.e. 0..127.
+bool mykey_get_last_transaction_date(
+    MyKeyData* key,
+    uint8_t* day,
+    uint8_t* month,
+    uint8_t* year) {
+    uint32_t block3C = key->eeprom[0x3C];
+    if(block3C == 0xFFFFFFFF) {
+        return false; // no history yet
+    }
+
+    uint8_t current = get_current_transaction_offset(key);
+    uint32_t txn = key->eeprom[0x34 + current];
+    if(txn == 0xFFFFFFFF || txn == 0) {
+        return false; // empty slot
+    }
+
+    uint8_t d = (txn >> 27) & 0x1F;
+    uint8_t m = (txn >> 23) & 0x0F;
+    uint8_t y = (txn >> 16) & 0x7F;
+
+    if(d == 0 || m == 0) {
+        return false; // not a valid date
+    }
+
+    if(day) *day = d;
+    if(month) *month = m;
+    if(year) *year = y;
+    return true;
+}
+
 // Add N cents to MyKey actual credit
 bool mykey_add_cents(MyKeyData* key, uint16_t cents, uint8_t day, uint8_t month, uint8_t year) {
     FURI_LOG_I(TAG, "=== Adding %u cents (%u.%02u EUR) ===", cents, cents / 100, cents % 100);
@@ -209,10 +256,7 @@ bool mykey_add_cents(MyKeyData* key, uint16_t cents, uint8_t day, uint8_t month,
         precedent_credit = actual_credit;
 
         // Choose current recharge
-        if(cents / 1000 > 0) {
-            cents -= 1000;
-            actual_credit += 1000;
-        } else if(cents / 500 > 0) {
+        if(cents / 500 > 0) {
             cents -= 500;
             actual_credit += 500;
         } else if(cents / 200 > 0) {
